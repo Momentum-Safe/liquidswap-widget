@@ -1,6 +1,9 @@
 <template>
   <div class="container">
-    <div class="swap-container" :class="[mainStore.insideNativeWallet.value && 'swap-container-wallet']">
+    <div
+      class="swap-container"
+      :class="[mainStore.insideNativeWallet.value && 'swap-container-wallet']"
+    >
       <form
         class="swap"
         action=""
@@ -9,11 +12,16 @@
         @submit.prevent="submitForm"
         @keyup.enter="submitForm"
       >
-        <div class="swap__header">
-          <span class="font-medium">Swap</span>
-          <div ref="overlayAnchor" class="swap__anchor" />
+        <div class="swap-header">
+          <div class="header">Proposing Swap</div>
+          <div class="flex-grow-1"></div>
           <div class="swap__settings">
-            <button type="button" class="btn btn-config" @click="openSettingsDialog">
+            <PButton icon="pi pi-times" />
+            <button
+              type="button"
+              class="btn btn-config"
+              @click="openSettingsDialog"
+            >
               <svg
                 class="config-icon"
                 xmlns="http://www.w3.org/2000/svg"
@@ -33,80 +41,82 @@
             </button>
           </div>
         </div>
-        <div class="swap__row">
-          <SwapInput mode="from" />
-        </div>
-        <InputToggle :on-click="toggleSwap" />
-        <div class="swap__row">
-          <SwapInput mode="to" />
-        </div>
-        <div
+        <div class="swap-content">
+          <div class="swap__row">
+            <SwapInput mode="from" />
+          </div>
+          <InputToggle :on-click="toggleSwap" />
+          <div class="swap__row">
+            <SwapInput mode="to" />
+          </div>
+          <div
             v-if="tokensChosen && !fullCurveOfDefaultPool"
             class="swap__row"
-            :class="[mainStore.insideNativeWallet.value && 'swap__row--extra-padding']">
-          <PInlineMessage class="mt-1" :class="'curve-warning'" severity="warn"
-            >Caution: make sure the pair you are trading should be stable or
-            uncorrelated. i.e USDC/USDT is stable and USDC/BTC is
-            uncorrelated</PInlineMessage
+            :class="[
+              mainStore.insideNativeWallet.value && 'swap__row--extra-padding',
+            ]"
           >
-        </div>
-        <div
+            <PInlineMessage
+              class="mt-1"
+              :class="'curve-warning'"
+              severity="warn"
+              >Caution: make sure the pair you are trading should be stable or
+              uncorrelated. i.e USDC/USDT is stable and USDC/BTC is
+              uncorrelated</PInlineMessage
+            >
+          </div>
+          <div
             v-show="tokensChosen && !fullCurveOfDefaultPool"
             class="swap__row"
-            :class="[mainStore.insideNativeWallet.value && 'swap__row--extra-padding']">
-          <CurveSwitch />
-        </div>
-        <div
-          v-if="
-            !swapStore.isPoolAbsence &&
-            swapStore.convertRate &&
-            swapStore.toCurrency.amount &&
-            swapStore.fromCurrency.amount
-          "
-          class="swap__row swap__row--no-padding"
-        >
-          <SwapInfo />
-        </div>
-        <div v-if="fullCurveOfDefaultPool" class="swap__row">
-          <CurveInfo :type="fullCurveOfDefaultPool" :version="version"/>
-        </div>
-        <div v-show="canSwitchContract" class="swap__row -version">
-          <ContractSwitch type="swap" />
-        </div>
-        <ReservesContainer type="swap" />
-        <div class="swap__row">
-          <p-button
-            v-if="!connected"
-            type="submit"
-            tabindex="5"
-            class="swap__button is-connect"
+            :class="[
+              mainStore.insideNativeWallet.value && 'swap__row--extra-padding',
+            ]"
           >
-            <span>Connect Wallet</span>
-          </p-button>
-          <p-button
-            v-else
-            type="submit"
-            tabindex="5"
-            class="swap__button"
-            :class="[{ 'p-disabled': buttonState.disabled }, priceImpactClass]"
-            :disabled="buttonState.disabled"
+            <CurveSwitch />
+          </div>
+          <div
+            v-if="
+              !swapStore.isPoolAbsence &&
+              swapStore.convertRate &&
+              swapStore.toCurrency.amount &&
+              swapStore.fromCurrency.amount
+            "
+            class="swap__row swap__row--no-padding"
           >
-            <span>{{ buttonState.text }}</span>
-          </p-button>
+            <SwapInfo />
+          </div>
+          <div v-if="fullCurveOfDefaultPool" class="swap__row">
+            <CurveInfo :type="fullCurveOfDefaultPool" :version="version" />
+          </div>
+          <div v-show="canSwitchContract" class="swap__row -version">
+            <ContractSwitch type="swap" />
+          </div>
+          <ReservesContainer type="swap" />
+          <div class="swap__row">
+            <p-button
+              v-if="!connected"
+              type="submit"
+              tabindex="5"
+              class="swap__button is-connect"
+            >
+              <span>Connect Wallet</span>
+            </p-button>
+            <p-button
+              v-else
+              type="submit"
+              tabindex="5"
+              class="swap__button"
+              :class="[
+                { 'p-disabled': buttonState.disabled },
+                priceImpactClass,
+              ]"
+              :disabled="buttonState.disabled"
+            >
+              <span>{{ buttonState.text }}</span>
+            </p-button>
+          </div>
         </div>
       </form>
-      <div class="full_version">
-        <h4 class="full_version__header">
-          More features in full-size version
-        </h4>
-        <p class="full_version__description">
-          Go to the web dApp to add liquidity or stake LP tokens in farms
-        </p>
-        <a class="full_version__link" href="https://liquidswap.com" target="_blank">
-          <img class="full_version__img" src="./../assets/expand.svg">
-          <span>liquidswap.com</span>
-        </a>
-      </div>
     </div>
     <TxSettingsDialog
       ref="txSettingsDialog"
@@ -115,35 +125,35 @@
       :to-token="swapStore.toCurrency.token"
       :from-token="swapStore.fromCurrency.token"
     />
-    <PriceImpactWarningDialog/>
+    <PriceImpactWarningDialog />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
-import PInlineMessage from 'primevue/inlinemessage';
-import PButton from 'primevue/button';
+import { computed, ref, watch } from "vue";
+import PInlineMessage from "primevue/inlinemessage";
+import PButton from "primevue/button";
 
-import { CurveInfo } from '@/components/CurveInfo';
-import { CurveSwitch } from '@/components/CurveSwitch';
-import { InputToggle } from '@/components/InputToggle';
-import { ReservesContainer } from '@/components/ReservesContainer';
-import { TxSettingsDialog } from '@/components/TxSettingsDialog';
-import { ContractSwitch } from '@/components/ContractSwitch';
-import { useCurrentAccountBalance } from '@/composables/useAccountBalance';
-import { useStore, useSwapStore, useTokensStore, usePoolsStore } from '@/store';
-import { d } from '@/utils/utils';
-import SwapInfo from './SwapInfo.vue';
-import SwapInput from './SwapInput.vue';
+import { CurveInfo } from "@/components/CurveInfo";
+import { CurveSwitch } from "@/components/CurveSwitch";
+import { InputToggle } from "@/components/InputToggle";
+import { ReservesContainer } from "@/components/ReservesContainer";
+import { TxSettingsDialog } from "@/components/TxSettingsDialog";
+import { ContractSwitch } from "@/components/ContractSwitch";
+import { useCurrentAccountBalance } from "@/composables/useAccountBalance";
+import { useStore, useSwapStore, useTokensStore, usePoolsStore } from "@/store";
+import { d } from "@/utils/utils";
+import SwapInfo from "./SwapInfo.vue";
+import SwapInput from "./SwapInput.vue";
 import {
   CURVE_STABLE_V05,
   CURVE_STABLE,
   VERSION_0,
   VERSION_0_5,
   CURVE_UNCORRELATED_V05,
-  CURVE_UNCORRELATED
-} from '@/constants/constants';
-import { getCurve, getShortCurveFromFull } from '@/utils/contracts';
+  CURVE_UNCORRELATED,
+} from "@/constants/constants";
+import { getCurve, getShortCurveFromFull } from "@/utils/contracts";
 import { TVersionType } from "@/types";
 
 const mainStore = useStore();
@@ -155,8 +165,8 @@ const { account } = mainStore;
 const version = computed(() => swapStore.version);
 const insideNativeWallet = computed(() => mainStore.insideNativeWallet.value);
 
-const stableCurve = computed(() => getCurve('stable', version.value));
-const unstableCurve = computed(() => getCurve('uncorrelated', version.value));
+const stableCurve = computed(() => getCurve("stable", version.value));
+const unstableCurve = computed(() => getCurve("uncorrelated", version.value));
 
 const connected = computed(() => Boolean(account.value));
 
@@ -164,8 +174,8 @@ const curveType = computed(() =>
   poolsStore.getCurveType(
     swapStore.fromCurrency?.token,
     swapStore.toCurrency?.token,
-    version.value as TVersionType,
-  ),
+    version.value as TVersionType
+  )
 );
 
 /**
@@ -175,96 +185,96 @@ const curveType = computed(() =>
 const fullCurveOfDefaultPool = computed(() => {
   // Now all known pools have version 0
   const isExistsDefaultPoolV0 = poolsStore.getCurveType(
-      swapStore.fromCurrency?.token,
-      swapStore.toCurrency?.token,
-      VERSION_0,
+    swapStore.fromCurrency?.token,
+    swapStore.toCurrency?.token,
+    VERSION_0
   );
 
   const isExistsDefaultPoolV05 = poolsStore.getCurveType(
-      swapStore.fromCurrency?.token,
-      swapStore.toCurrency?.token,
-      VERSION_0_5,
+    swapStore.fromCurrency?.token,
+    swapStore.toCurrency?.token,
+    VERSION_0_5
   );
 
   const hasDefaultPoolStableCurveV0 = [CURVE_STABLE, CURVE_STABLE_V05].includes(
-      '' + isExistsDefaultPoolV0,
+    "" + isExistsDefaultPoolV0
   );
 
   const hasDefaultPoolStableCurveV05 = [
     CURVE_STABLE,
     CURVE_STABLE_V05,
-  ].includes('' + isExistsDefaultPoolV05);
+  ].includes("" + isExistsDefaultPoolV05);
 
   const hasDefaultPoolUncorrelatedCurveV0 = [
     CURVE_UNCORRELATED,
     CURVE_UNCORRELATED_V05,
-  ].includes('' + isExistsDefaultPoolV0);
+  ].includes("" + isExistsDefaultPoolV0);
 
   const hasDefaultPoolUncorrelatedCurveV05 = [
     CURVE_UNCORRELATED,
     CURVE_UNCORRELATED_V05,
-  ].includes('' + isExistsDefaultPoolV05);
+  ].includes("" + isExistsDefaultPoolV05);
 
   if (
-      (isExistsDefaultPoolV0 || isExistsDefaultPoolV05) &&
-      (hasDefaultPoolStableCurveV0 || hasDefaultPoolStableCurveV05)
+    (isExistsDefaultPoolV0 || isExistsDefaultPoolV05) &&
+    (hasDefaultPoolStableCurveV0 || hasDefaultPoolStableCurveV05)
   ) {
     return version.value === VERSION_0_5 ? CURVE_STABLE_V05 : CURVE_STABLE;
   }
 
   if (
-      (isExistsDefaultPoolV0 || isExistsDefaultPoolV05) &&
-      (hasDefaultPoolUncorrelatedCurveV0 || hasDefaultPoolUncorrelatedCurveV05)
+    (isExistsDefaultPoolV0 || isExistsDefaultPoolV05) &&
+    (hasDefaultPoolUncorrelatedCurveV0 || hasDefaultPoolUncorrelatedCurveV05)
   ) {
-    return version.value === VERSION_0_5 ? CURVE_UNCORRELATED_V05 : CURVE_UNCORRELATED;
+    return version.value === VERSION_0_5
+      ? CURVE_UNCORRELATED_V05
+      : CURVE_UNCORRELATED;
   }
 
   return false;
 });
 
 watch([curveType, stableCurve, unstableCurve], () => {
-    if (curveType.value) {
-      swapStore.curve =
-          curveType.value === stableCurve.value || curveType.value === 'stable'
-          ? stableCurve.value
-          : unstableCurve.value;
-    }
-    else {
-      const shortName = getShortCurveFromFull(swapStore.curve);
-      swapStore.curve = getCurve(shortName, version.value);
-    }
-  },
-)
+  if (curveType.value) {
+    swapStore.curve =
+      curveType.value === stableCurve.value || curveType.value === "stable"
+        ? stableCurve.value
+        : unstableCurve.value;
+  } else {
+    const shortName = getShortCurveFromFull(swapStore.curve);
+    swapStore.curve = getCurve(shortName, version.value);
+  }
+});
 
 const fromBalance = useCurrentAccountBalance(
-  computed(() => swapStore.fromCurrency?.token),
+  computed(() => swapStore.fromCurrency?.token)
 );
 const toBalance = useCurrentAccountBalance(
-  computed(() => swapStore.toCurrency?.token),
+  computed(() => swapStore.toCurrency?.token)
 );
 const txSettingsDialog = ref();
 const overlayAnchor = ref();
 
 const tokensChosen = computed(
-  () => !!swapStore.fromCurrency.token && !!swapStore.toCurrency.token,
+  () => !!swapStore.fromCurrency.token && !!swapStore.toCurrency.token
 );
 const canSwitchContract = computed(() => {
   const isToTokenChosen = swapStore.toCurrency?.token;
 
   const isDefaultPool = !!fullCurveOfDefaultPool.value;
   const hasDefaultPoolStableCurve = [CURVE_STABLE_V05, CURVE_STABLE].includes(
-      '' + fullCurveOfDefaultPool.value,
+    "" + fullCurveOfDefaultPool.value
   );
   const isPoolUnknown = fullCurveOfDefaultPool.value === false;
   const canSwitch =
-      (isDefaultPool && hasDefaultPoolStableCurve) || isPoolUnknown;
+    (isDefaultPool && hasDefaultPoolStableCurve) || isPoolUnknown;
 
   return isToTokenChosen && canSwitch;
 });
 
 const buttonState = computed(() => {
   if (swapStore.isBusy.value) {
-    return { disabled: true, text: '...' };
+    return { disabled: true, text: "..." };
   }
 
   if (swapStore.convertError) {
@@ -272,21 +282,21 @@ const buttonState = computed(() => {
   }
 
   if (!swapStore.fromCurrency.token || !swapStore.toCurrency.token) {
-    return { disabled: true, text: 'Select token' };
+    return { disabled: true, text: "Select token" };
   }
 
   if (swapStore.isPoolAbsence) {
-    return { disabled: true, text: 'Pool is not created' };
+    return { disabled: true, text: "Pool is not created" };
   }
 
   if (!swapStore.fromCurrency?.amount || !swapStore.toCurrency?.amount) {
-    return { disabled: true, text: 'Enter an amount' };
+    return { disabled: true, text: "Enter an amount" };
   }
 
   let amount = d(swapStore.fromCurrency?.amount);
   let balance = d(fromBalance.balance.value);
 
-  if (swapStore.interactiveField === 'to') {
+  if (swapStore.interactiveField === "to") {
     amount = amount.plus(amount.mul(swapStore.slippage));
   }
 
@@ -321,18 +331,18 @@ const buttonState = computed(() => {
 });
 
 const priceImpactClass = computed(() => {
-  return swapStore.priceImpactState === 'normal'
-      ? 'p-button-primary'
-      : swapStore.priceImpactState === 'warning'
-          ? 'p-button-warning_custom'
-          : 'p-button-alert';
+  return swapStore.priceImpactState === "normal"
+    ? "p-button-primary"
+    : swapStore.priceImpactState === "warning"
+    ? "p-button-warning_custom"
+    : "p-button-alert";
 });
 
 function submitForm(e: Event) {
-  const isNextButton = (e.target as HTMLElement)?.enterKeyHint === 'next';
+  const isNextButton = (e.target as HTMLElement)?.enterKeyHint === "next";
   const isSubmitDisabled = buttonState.value.disabled;
   const cancelEvent = Boolean(
-    (isNextButton || isSubmitDisabled) && connected.value,
+    (isNextButton || isSubmitDisabled) && connected.value
   );
   if (cancelEvent) return;
 
@@ -341,7 +351,7 @@ function submitForm(e: Event) {
 }
 
 function onConnectWallet() {
-  mainStore.showDialog('connectWallet');
+  mainStore.showDialog("connectWallet");
 }
 
 function toggleSwap() {
@@ -350,15 +360,15 @@ function toggleSwap() {
 
 function showSwapDialog() {
   const isShowSwapWarningDialog =
-      swapStore.priceImpactState === 'warning' ||
-      swapStore.priceImpactState === 'alert';
+    swapStore.priceImpactState === "warning" ||
+    swapStore.priceImpactState === "alert";
 
   if (isShowSwapWarningDialog) {
-    mainStore.showDialog('priceImpact');
+    mainStore.showDialog("priceImpact");
     return;
   }
 
-  mainStore.showDialog('swapConfirm');
+  mainStore.showDialog("swapConfirm");
 }
 
 function openSettingsDialog() {
